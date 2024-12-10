@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from config import settings
 from bs4 import BeautifulSoup
 import requests
-
+import re
+import feedparser
+from yakinori import Yakinori
 
 class Hero(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -52,15 +54,17 @@ def read_hero(hero_id: int):
         hero = session.get(Hero, hero_id)
         return hero
 
-@app.get("/beautiful-soup/")
+@app.get("/hiraganize/")
 def read_beautiful_soup():
-    url = "https://www.eldestapeweb.com/"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    yakinori = Yakinori()
 
-    # Suponiendo que los titulares están en <h2> con clase 'headline'
-    titulares = soup.find_all('h2', class_='headline')
-
-    # for i, titular in enumerate(titulares, 1):
-    #     print(f"{i}. {titular.text.strip()}")
-    return titulares
+    rss_url = "https://news.google.com/rss/search?q=digimon&hl=ja&gl=JP&ceid=JP:ja"
+    feed = feedparser.parse(rss_url)
+    output = []
+    for entry in feed.entries:
+        title = entry.get("title", "No Title")
+        parsed_title = yakinori.get_parsed_list(title)
+        hiragana_sentence = yakinori.get_hiragana_sentence(parsed_title, is_hatsuon=True)
+        link = entry.get("link", "No Link")
+        output.append({"title": hiragana_sentence, "link": link})
+    return output

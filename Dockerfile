@@ -30,6 +30,27 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
+RUN apt-get -y update && \
+    apt-get install -y \
+    git \
+    mecab \
+    libmecab-dev \
+    mecab-ipadic-utf8 \
+    sudo \
+    curl \
+    make \
+    xz-utils \
+    unzip \
+    file \
+    && apt-get clean
+
+RUN git clone --depth 1 https://github.com/neologd/mecab-unidic-neologd.git && ./mecab-unidic-neologd/bin/install-mecab-unidic-neologd -n -y
+
+RUN echo `mecab-config --dicdir`"/mecab-unidic-neologd"
+
+RUN echo "dicdir = `mecab-config --dicdir`/mecab-unidic-neologd" | sudo tee /etc/mecabrc && \
+    sudo cp /etc/mecabrc /usr/local/etc
+
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
