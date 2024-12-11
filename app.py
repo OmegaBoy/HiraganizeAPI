@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from config import settings
-from bs4 import BeautifulSoup
+import json
 import requests
 import re
 import feedparser
@@ -55,7 +55,7 @@ def read_hero(hero_id: int):
         return hero
 
 @app.get("/hiraganize/")
-def read_beautiful_soup():
+def read_hiraganize():
     yakinori = Yakinori()
 
     rss_url = "https://news.google.com/rss/search?q=digimon&hl=ja&gl=JP&ceid=JP:ja"
@@ -65,7 +65,12 @@ def read_beautiful_soup():
         title = entry.get("title", "No Title")
         parsed_title = yakinori.get_parsed_list(title)
         hiragana_sentence = yakinori.get_hiragana_sentence(parsed_title, is_hatsuon=True)
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=en&dt=t&q=" + title
+        response = requests.get(url)
+        translation = "";        
+        for translated in response.json()[0]:
+            translation = translation + translated[0]
         romanji_sentense = yakinori.get_roma_sentence(parsed_title, is_hatsuon=True)
         link = entry.get("link", "No Link")
-        output.append({"title": hiragana_sentence, "tooltip": romanji_sentense, "link": link})
+        output.append({"title": hiragana_sentence, "tooltip": romanji_sentense + " " + translation, "link": link})
     return output
