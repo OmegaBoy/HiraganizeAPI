@@ -65,6 +65,7 @@ def read_beautiful_soup():
         title = entry.get("title", "No Title")
         parsed_title = yakinori.get_parsed_list(title)
         hiragana_sentence = yakinori.get_hiragana_sentence(parsed_title, is_hatsuon=True)
+        romanji_sentense = yakinori.get_roma_sentence(parsed_title, is_hatsuon=True)
         link = entry.get("link", "No Link")
-        output.append({"title": hiragana_sentence, "link": link})
+        output.append({"title": hiragana_sentence, "tooltip": romanji_sentense, "link": link})
     return output
