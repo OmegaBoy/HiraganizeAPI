@@ -13,6 +13,7 @@ services:
       context: .
     ports:
       - 8001:8001
+    restart: always
     environment:
       - POSTGRES_SERVER=db
       - POSTGRES_USER=postgres
