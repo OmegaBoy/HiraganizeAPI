@@ -1,2 +1,1 @@
-## Simple python docker dev example for the official docker docs
-https://docs.docker.com/language/python/develop/
+## Python Docker API to convert japanese Kanji text to Hiragana to use in a Rainmeter news feed integration.
